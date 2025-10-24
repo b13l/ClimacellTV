@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLIMACELL TV - Sistema Completo</title>
+    <style>
+        :root { 
+            --bg-dark: #0a0e27;
+            --bg-card: #151932;
+            --bg-hover: #1e2442;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text: #e5e7eb;
+            --text-dim: #9ca3af;
+            --border: rgba(99, 102, 241, 0.2);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { background: var(--bg-dark); color: var(--text); overflow: hidden; }
+        
+        /* LOGIN */
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-card { width: 100%; max-width: 460px; padding: 48px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); }
+        .login-title { text-align: center; margin-bottom: 32px; font-size: 32px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 14px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        .btn { padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s; width: 100%; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { opacity: 0.9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { opacity: 0.9; }
+        .btn-sm { padding: 8px 16px; font-size: 14px; width: auto; }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .alert-success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        /* MAIN APP */
+        #main-app { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000; }
+        
+        /* SIDEBAR */
+        .app-sidebar { width: 350px; background: var(--bg-dark); border-right: 2px solid var(--primary); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .logo { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .logo-text { color: var(--primary); }
+        
+        .user-info { background: var(--bg-card); padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
+        .user-info strong { color: var(--primary); }
+        
+        .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+        .nav-btn { padding: 12px 16px; background: transparent; border: none; color: var(--text); text-align: left; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; display: flex; align-items: center; gap: 10px; font-size: 15px; }
+        .nav-btn:hover { background: var(--bg-hover); }
+        .nav-btn.active { background: var(--primary); color: white; }
+        .nav-btn-danger { color: var(--danger); }
+        .nav-btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+        
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 16px; }
+        
+        /* ADMIN SECTION */
+        #admin-section { padding: 20px; }
+        .admin-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .admin-card h3 { margin-bottom: 16px; color: var(--primary); font-size: 18px; }
+        
+        .users-table { width: 100%; border-collapse: collapse; }
+        .users-table th { background: var(--bg-hover); padding: 12px; text-align: left; font-weight: 600; font-size: 13px; border-bottom: 2px solid var(--border); }
+        .users-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .users-table tr:hover { background: var(--bg-hover); }
+        
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .status-expired { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .status-admin { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+        
+        .action-btns { display: flex; gap: 8px; }
+        
+        /* SERVER SELECT */
+        .server-select-container { margin-bottom: 16px; }
+        .server-select { width: 100%; padding: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; cursor: pointer; }
+        .server-select:focus { outline: none; border-color: var(--primary); }
+        
+        /* SEARCH */
+        .search-box { width: 100%; padding: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; margin-bottom: 16px; }
+        .search-box:focus { outline: none; border-color: var(--primary); }
+        
+        /* FILTERS */
+        .filters { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        
+        /* CONTENT ITEM */
+        .content-item { padding: 12px; background: var(--bg-card); border-radius: 8px; cursor: pointer; transition: all 0.3s; border: 1px solid var(--border); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .content-item:hover { background: var(--bg-hover); border-color: var(--primary); }
+        .content-item.active { background: var(--primary); }
+        .content-icon { width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .content-info { flex: 1; min-width: 0; }
+        .content-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .content-meta { font-size: 12px; color: var(--text-dim); }
+        
+        /* PLAYER */
+        .player-area { flex: 1; display: flex; flex-direction: column; background: #000; }
+        .player-header { background: rgba(0,0,0,0.95); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
+        .player-title { font-size: 18px; font-weight: 600; color: white; }
+        .player-controls { display: flex; gap: 12px; }
+        .player-btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.3s; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { opacity: 0.9; }
+        .btn-danger-btn { background: var(--danger); color: white; }
+        .btn-danger-btn:hover { opacity: 0.9; }
+        
+        .video-container { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; background: #000; }
+        .video-player { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        .player-info-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.9); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        
+        /* LOADING */
+        .loading { text-align: center; padding: 40px; color: var(--primary); }
+        .error-msg { text-align: center; padding: 20px; color: var(--danger); background: rgba(239, 68, 68, 0.1); border-radius: 8px; margin: 10px 0; }
+        
+        /* LAYOUT */
+        .app-layout { display: flex; height: 100vh; }
+        
+        /* PROGRESS */
+        .progress-container { background: var(--bg-card); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .progress-bar { width: 100%; height: 24px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #8b5cf6); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; }
+        .progress-text { text-align: center; margin-top: 8px; font-size: 13px; color: var(--text-dim); }
+        
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: var(--bg-card); border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .modal-close { background: none; border: none; color: var(--text); font-size: 28px; cursor: pointer; line-height: 1; }
+        .modal-close:hover { color: var(--danger); }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .app-sidebar { width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page" class="login-container">
+        <div class="login-card">
+            <h2 class="login-title">
+                <span style="font-size: 32px;">📺</span>
+                <div>CLIMACELL <span style="color: var(--primary);">TV</span></div>
+            </h2>
+            <p style="text-align: center; margin-bottom: 32px; color: var(--text-dim);">Sua Nova Experiência em TV</p>
+            
+            <div id="login-alert" class="alert alert-danger" style="display: none;"></div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="email" placeholder="seu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="password" placeholder="Sua senha" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </form>
+            <p style="text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-dim);">
+                Acesso Admin: <strong>admin@climacell.tv</strong> / <strong>admin123</strong>
+            </p>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="app-layout">
+            <div class="app-sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <span style="font-size: 28px;">📺</span>
+                        <div>CLIMACELL <span class="logo-text">TV</span></div>
+                    </div>
+                    
+                    <div class="user-info">
+                        <div>👤 <strong id="user-email-display"></strong></div>
+                        <div style="margin-top: 4px;">📅 Expira: <strong id="user-expiry-display"></strong></div>
+                    </div>
+                    
+                    <div class="sidebar-nav">
+                        <button class="nav-btn" data-section="admin" id="admin-nav-btn" style="display: none;">⚙️ Administração</button>
+                        <button class="nav-btn active" data-section="live">📡 Canais ao Vivo</button>
+                        <button class="nav-btn" data-section="movies">🎬 Filmes</button>
+                        <button class="nav-btn" data-section="series">📺 Séries</button>
+                        <button class="nav-btn nav-btn-danger" id="logout-btn">🚪 Sair</button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div id="admin-section" class="content-section" style="display: none;">
+                        <div class="admin-card">
+                            <h3>📊 Estatísticas</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                                <div style="background: var(--bg-hover); padding: 16px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="total-users">0</div>
+                                    <div style="font-size: 13px; color: var(--text-dim);">Usuários Totais</div>
+                                </div>
+                                <div style="background: var(--bg-hover); padding: 16px; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 28px; font-weight: 700; color: var(--primary);" id="active-users">0</div>
+                                    <div style="font-size: 13px; color: var(--text-dim);">Ativos</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h3 style="margin: 0;">👥 Gerenciar Usuários</h3>
+                                <button class="btn btn-success btn-sm" id="add-user-btn">➕ Novo Usuário</button>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table class="users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>E-mail</th>
+                                            <th>Plano</th>
+                                            <th>Expira</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="live-section" class="content-section">
+                        <div class="server-select-container">
+                            <select class="server-select" id="live-server-select">
+                                <option value="">Selecione um servidor</option>
+                            </select>
+                        </div>
+                        <div class="filters">
+                            <input type="text" class="search-box" id="live-search" placeholder="🔍 Buscar canal...">
+                            <select class="server-select" id="live-category-filter">
+                                <option value="all">Todas Categorias</option>
+                            </select>
+                        </div>
+                        <div id="live-loading" class="loading" style="display: none;">📡 Carregando...</div>
+                        <div id="live-error" class="error-msg" style="display: none;"></div>
+                        <div id="live-progress" class="progress-container" style="display: none;">
+                            <div class="progress-bar"><div class="progress-fill" id="live-progress-fill">0%</div></div>
+                            <div class="progress-text" id="live-progress-text"></div>
+                        </div>
+                        <div id="live-list"></div>
+                    </div>
+
+                    <div id="movies-section" class="content-section" style="display: none;">
+                        <div class="server-select-container">
+                            <select class="server-select" id="movies-server-select">
+                                <option value="">Selecione um servidor</option>
+                            </select>
+                        </div>
+                        <div class="filters">
+                            <input type="text" class="search-box" id="movies-search" placeholder="🔍 Buscar filme...">
+                            <select class="server-select" id="movies-category-filter">
+                                <option value="all">Todas Categorias</option>
+                            </select>
+                        </div>
+                        <div id="movies-loading" class="loading" style="display: none;">📡 Carregando...</div>
+                        <div id="movies-error" class="error-msg" style="display: none;"></div>
+                        <div id="movies-progress" class="progress-container" style="display: none;">
+                            <div class="progress-bar"><div class="progress-fill" id="movies-progress-fill">0%</div></div>
+                            <div class="progress-text" id="movies-progress-text"></div>
+                        </div>
+                        <div id="movies-list"></div>
+                    </div>
+
+                    <div id="series-section" class="content-section" style="display: none;">
+                        <div class="server-select-container">
+                            <select class="server-select" id="series-server-select">
+                                <option value="">Selecione um servidor</option>
+                            </select>
+                        </div>
+                        <div class="filters">
+                            <input type="text" class="search-box" id="series-search" placeholder="🔍 Buscar série...">
+                            <select class="server-select" id="series-category-filter">
+                                <option value="all">Todas Categorias</option>
+                            </select>
+                        </div>
+                        <div id="series-loading" class="loading" style="display: none;">📡 Carregando...</div>
+                        <div id="series-error" class="error-msg" style="display: none;"></div>
+                        <div id="series-progress" class="progress-container" style="display: none;">
+                            <div class="progress-bar"><div class="progress-fill" id="series-progress-fill">0%</div></div>
+                            <div class="progress-text" id="series-progress-text"></div>
+                        </div>
+                        <div id="series-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-area">
+                <div class="player-header">
+                    <div class="player-title" id="player-title">Selecione um conteúdo</div>
+                    <div class="player-controls">
+                        <button class="player-btn btn-warning" id="alt-server-btn" style="display: none;">🔄 Outro Servidor</button>
+                    </div>
+                </div>
+                <div class="video-container">
+                    <video class="video-player" id="video-player" controls preload="metadata"></video>
+                    <div class="player-info-bar">
+                        <span id="player-status">Pronto para reproduzir</span>
+                        <span id="player-server"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="user-modal-title">Novo Usuário</h3>
+                <button class="modal-close" onclick="closeUserModal()">×</button>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="user-email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="user-password" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Plano</label>
+                        <select class="form-control" id="user-plan" required>
+                            <option value="mensal">Mensal</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="semestral">Semestral</option>
+                            <option value="anual">Anual</option>
+                            <option value="vitalicio">Vitalício</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data de Expiração</label>
+                        <input type="date" class="form-control" id="user-expiry" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="user-is-admin">
+                        <span>Administrador</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-danger" onclick="closeUserModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        const servers = [
+            { id: 1, name: "Canais 1", type: "live", url: "http://play.1list.vip:80", user: "manoelribeiro", pass: "elizete" },
+            { id: 2, name: "Canais 2", type: "live", url: "http://play.1list.vip:80", user: "ElizeteHRT", pass: "acu8my3o9n" },
+            { id: 3, name: "Canais 3", type: "live", url: "http://hplay10.xyz:80", user: "49136288", pass: "31568440" },
+            { id: 4, name: "Canais 4", type: "live", url: "http://newoneblack.site:80", user: "13377372887", pass: "7476539" },
+            { id: 5, name: "Canais 5", type: "live", url: "http://xcloudcine.xyz:80", user: "8494481691", pass: "20304050" },
+            { id: 6, name: "Canais 6", type: "live", url: "http://cdn22.cc:80", user: "Dayane964", pass: "SZ1884" },
+            { id: 101, name: "Filmes 1", type: "vod", url: "http://cdnbrr.click:80", user: "106134820", pass: "890652073" },
+            { id: 102, name: "Filmes 2", type: "vod", url: "http://hplay10.xyz:80", user: "49136288", pass: "31568440" },
+            { id: 103, name: "Filmes 3", type: "vod", url: "http://newoneblack.site:80", user: "13377372887", pass: "7476539" },
+            { id: 104, name: "Filmes 4", type: "vod", url: "http://xcloudcine.xyz:80", user: "8494481691", pass: "20304050" },
+            { id: 105, name: "Filmes 5", type: "vod", url: "http://cdn22.cc:80", user: "Dayane964", pass: "SZ1884" },
+            { id: 201, name: "Séries 1", type: "series", url: "http://cdnbrr.click:80", user: "106134820", pass: "890652073" },
+            { id: 202, name: "Séries 2", type: "series", url: "http://hplay10.xyz:80", user: "49136288", pass: "31568440" },
+            { id: 203, name: "Séries 3", type: "series", url: "http://newoneblack.site:80", user: "13377372887", pass: "7476539" },
+            { id: 204, name: "Séries 4", type: "series", url: "http://xcloudcine.xyz:80", user: "8494481691", pass: "20304050" },
+            { id: 205, name: "Séries 5", type: "series", url: "http://cdn22.cc:80", user: "Dayane964", pass: "SZ1884" },
+        
+        ];
+
+        // USER DATABASE - INÍCIO DA CORREÇÃO
+        const defaultUsers = [
+            { id: 1, email: "admin@climacell.tv", password: "admin123", plan: "vitalicio", expiry: "2099-12-31", isAdmin: true }
+        ];
+        
+        // Tenta carregar do localStorage, se não houver, usa o array padrão
+        let users = JSON.parse(localStorage.getItem('appUsers')) || defaultUsers;
+
+        // Função para salvar o array users no localStorage
+        function saveUsers() {
+            localStorage.setItem('appUsers', JSON.stringify(users));
+        }
+        // USER DATABASE - FIM DA CORREÇÃO
+        
+        let currentUser = null;
+        let currentData = { live: [], movies: [], series: [] };
+        let currentItem = null;
+        let hlsPlayer = null;
+        let alternatives = [];
+
+        const video = document.getElementById('video-player');
+        const playerTitle = document.getElementById('player-title');
+        const playerStatus = document.getElementById('player-status');
+        const playerServer = document.getElementById('player-server');
+        const altServerBtn = document.getElementById('alt-server-btn');
+        const loginAlert = document.getElementById('login-alert');
+
+        // ========== CACHE (Local Storage) ==========
+        function saveToCache(key, data) {
+            try {
+                const cacheData = {
+                    timestamp: Date.now(),
+                    data: data
+                };
+                // Salvar o cache com uma chave única
+                localStorage.setItem(`climacell_cache_${key}`, JSON.stringify(cacheData));
+                console.log(`💾 Cache salvo: ${key}`);
+            } catch (e) {
+                console.error('Erro ao salvar no cache:', e);
+            }
+        }
+
+        function getFromCache(key, maxAgeHours = 4) {
+            try {
+                const cached = localStorage.getItem(`climacell_cache_${key}`);
+                if (!cached) return null;
+
+                const cacheData = JSON.parse(cached);
+                const maxAge = maxAgeHours * 60 * 60 * 1000;
+                
+                // Verifica se o cache expirou
+                if (Date.now() - cacheData.timestamp > maxAge) {
+                    console.log(`🗑️ Cache expirado: ${key}`);
+                    localStorage.removeItem(`climacell_cache_${key}`);
+                    return null;
+                }
+
+                console.log(`✅ Cache carregado: ${key}`);
+                return cacheData.data;
+            } catch (e) {
+                console.error('Erro ao ler cache:', e);
+                return null;
+            }
+        }
+
+        function clearAllCache() {
+             // Limpa apenas as chaves do CLIMACELL TV
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('climacell_cache_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            console.log('🗑️ Cache do aplicativo limpo.');
+        }
+
+        // ========== LOGIN ==========
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showLoginAlert('❌ E-mail ou senha incorretos');
+                return;
+            }
+
+            // Check expiry
+            const today = new Date();
+            const expiryDate = new Date(user.expiry);
+            
+            if (expiryDate < today && user.plan !== 'vitalicio') {
+                showLoginAlert('❌ Sua assinatura expirou. Contate o administrador.');
+                return;
+            }
+
+            currentUser = user;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            initApp();
+        });
+
+        function showLoginAlert(message) {
+            loginAlert.textContent = message;
+            loginAlert.style.display = 'block';
+            setTimeout(() => loginAlert.style.display = 'none', 5000);
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if (confirm('Deseja sair?')) {
+                clearAllCache(); // Limpar cache de conteúdo ao sair, conforme solicitado
+                currentUser = null;
+                location.reload();
+            }
+        });
+
+        // ========== INIT APP ==========
+        function initApp() {
+            // Update user info
+            document.getElementById('user-email-display').textContent = currentUser.email;
+            const expiryDate = new Date(currentUser.expiry);
+            document.getElementById('user-expiry-display').textContent = expiryDate.toLocaleDateString('pt-BR');
+            
+            // Show admin section if admin
+            if (currentUser.isAdmin) {
+                document.getElementById('admin-nav-btn').style.display = 'flex';
+                loadAdminData();
+            }
+            
+            loadServerSelects();
+            setupNavigation();
+            setupFilters();
+
+            // NOVO: Selecionar e carregar o primeiro servidor de cada tipo no login
+            // Live (Canais)
+            const firstLiveServerId = servers.find(s => s.type === 'live')?.id;
+            if (firstLiveServerId) {
+                document.getElementById('live-server-select').value = firstLiveServerId;
+                loadContent('live');
+            }
+            // Movies (Filmes - VOD)
+            const firstMovieServerId = servers.find(s => s.type === 'vod')?.id;
+            if (firstMovieServerId) {
+                document.getElementById('movies-server-select').value = firstMovieServerId;
+                loadContent('movies');
+            }
+            // Series (Séries)
+            const firstSeriesServerId = servers.find(s => s.type === 'series')?.id;
+            if (firstSeriesServerId) {
+                document.getElementById('series-server-select').value = firstSeriesServerId;
+                loadContent('series');
+            }
+        }
+
+        // ========== ADMIN (Mantido como estava) ==========
+        function loadAdminData() {
+            const totalUsers = users.length;
+            const today = new Date();
+            const activeUsers = users.filter(u => {
+                if (u.plan === 'vitalicio') return true;
+                return new Date(u.expiry) >= today;
+            }).length;
+            
+            document.getElementById('total-users').textContent = totalUsers;
+            document.getElementById('active-users').textContent = activeUsers;
+            
+            loadUsersTable();
+        }
+
+        function loadUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                const today = new Date();
+                const expiryDate = new Date(user.expiry);
+                const isExpired = expiryDate < today && user.plan !== 'vitalicio';
+                const statusClass = user.isAdmin ? 'status-admin' : (isExpired ? 'status-expired' : 'status-active');
+                const statusText = user.isAdmin ? 'ADMIN' : (isExpired ? 'EXPIRADO' : 'ATIVO');
+                
+                tr.innerHTML = `
+                    <td>${user.email}</td>
+                    <td>${user.plan.toUpperCase()}</td>
+                    <td>${expiryDate.toLocaleDateString('pt-BR')}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td class="action-btns">
+                        <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})">✏️ Editar</button>
+                        ${!user.isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">🗑️</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('add-user-btn').addEventListener('click', () => {
+            document.getElementById('user-modal-title').textContent = 'Novo Usuário';
+            document.getElementById('user-form').reset();
+            document.getElementById('user-id').value = '';
+            
+            // Set default expiry to 1 month
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('user-expiry').value = nextMonth.toISOString().split('T')[0];
+            
+            document.getElementById('user-modal').classList.add('show');
+        });
+
+        document.getElementById('user-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const userId = document.getElementById('user-id').value;
+            const email = document.getElementById('user-email').value;
+            const password = document.getElementById('user-password').value;
+            const plan = document.getElementById('user-plan').value;
+            const expiry = document.getElementById('user-expiry').value;
+            const isAdmin = document.getElementById('user-is-admin').checked;
+            
+            if (userId) {
+                // Edit existing user
+                const user = users.find(u => u.id == userId);
+                if (user) {
+                    user.email = email;
+                    if (password) user.password = password;
+                    user.plan = plan;
+                    user.expiry = expiry;
+                    user.isAdmin = isAdmin;
+                }
+            } else {
+                // Add new user
+                const newId = Math.max(...users.map(u => u.id)) + 1;
+                users.push({
+                    id: newId,
+                    email,
+                    password,
+                    plan,
+                    expiry,
+                    isAdmin
+                });
+            }
+            
+            loadAdminData();
+            closeUserModal();
+            saveUsers(); // <-- ADICIONADO: Salva a lista de usuários no localStorage
+            alert('✅ Usuário salvo com sucesso!');
+        });
+
+        // Update expiry when plan changes
+        document.getElementById('user-plan').addEventListener('change', (e) => {
+            const plan = e.target.value;
+            const today = new Date();
+            let expiryDate = new Date();
+            
+            switch(plan) {
+                case 'mensal': expiryDate.setMonth(today.getMonth() + 1); break;
+                case 'trimestral': expiryDate.setMonth(today.getMonth() + 3); break;
+                case 'semestral': expiryDate.setMonth(today.getMonth() + 6); break;
+                case 'anual': expiryDate.setFullYear(today.getFullYear() + 1); break;
+                case 'vitalicio': expiryDate = new Date('2099-12-31'); break;
+            }
+            
+            document.getElementById('user-expiry').value = expiryDate.toISOString().split('T')[0];
+        });
+
+        window.editUser = function(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('user-modal-title').textContent = 'Editar Usuário';
+            document.getElementById('user-id').value = user.id;
+            document.getElementById('user-email').value = user.email;
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-plan').value = user.plan;
+            document.getElementById('user-expiry').value = user.expiry;
+            document.getElementById('user-is-admin').checked = user.isAdmin;
+            
+            document.getElementById('user-modal').classList.add('show');
+        };
+
+        window.deleteUser = function(userId) {
+            if (!confirm('Deseja realmente excluir este usuário?')) return;
+            
+            users = users.filter(u => u.id !== userId);
+            loadAdminData();
+            saveUsers(); // <-- ADICIONADO: Salva a lista de usuários no localStorage
+            alert('✅ Usuário excluído com sucesso!');
+        };
+
+        window.closeUserModal = function() {
+            document.getElementById('user-modal').classList.remove('show');
+        };
+
+        // ========== SERVER SELECTS (CORRIGIDO) ==========
+        function loadServerSelects() {
+            ['live', 'movies', 'series'].forEach(type => {
+                const select = document.getElementById(`${type}-server-select`);
+                
+                let filterType = type;
+                if (type === 'movies') filterType = 'vod';
+                
+                const typeServers = servers.filter(s => s.type === filterType);
+                select.innerHTML = '<option value="">Selecione um servidor</option>';
+                typeServers.forEach(srv => {
+                    const opt = document.createElement('option');
+                    opt.value = srv.id;
+                    opt.textContent = srv.name;
+                    select.appendChild(opt);
+                });
+                select.addEventListener('change', () => loadContent(type));
+            });
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (btn.id === 'logout-btn') return;
+                    
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const section = btn.dataset.section;
+                    document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+                    document.getElementById(`${section}-section`).style.display = 'block';
+                });
+            });
+        }
+
+        function setupFilters() {
+            ['live', 'movies', 'series'].forEach(type => {
+                document.getElementById(`${type}-search`).addEventListener('input', () => filterContent(type));
+                document.getElementById(`${type}-category-filter`).addEventListener('change', () => filterContent(type));
+            });
+        }
+
+        // ========== LOAD CONTENT (com CACHE e Correções) ==========
+        async function loadContent(type) {
+            const serverId = parseInt(document.getElementById(`${type}-server-select`).value);
+            if (!serverId) {
+                 // Limpa a lista se nenhum servidor estiver selecionado
+                document.getElementById(`${type}-list`).innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-dim);">Selecione um servidor acima.</div>';
+                return;
+            }
+
+            const server = servers.find(s => s.id === serverId);
+            if (!server) return;
+
+            const action = type === 'live' ? 'get_live_streams' : type === 'series' ? 'get_series' : 'get_vod_streams';
+            const catAction = type === 'live' ? 'get_live_categories' : type === 'series' ? 'get_series_categories' : 'get_vod_categories';
+
+            // 1. Tentar carregar do cache
+            const cacheKey = `${type}_${serverId}`;
+            const cachedData = getFromCache(cacheKey);
+
+            if (cachedData) {
+                currentData[type] = cachedData.items;
+                displayContent(type, currentData[type]);
+                updateCategoryFilter(type, currentData[type], cachedData.categories);
+                return;
+            }
+
+            // 2. Se não houver cache, carregar do servidor
+            showLoading(type, true);
+            showProgress(type, 20, 'Carregando...');
+
+            try {
+                const url = `${server.url}/player_api.php?username=${server.user}&password=${server.pass}&action=${action}`;
+                console.log(`📡 Carregando ${type} de:`, url);
+                
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`Servidor não respondeu (${res.status})`);
+
+                showProgress(type, 50, 'Processando...');
+                const data = await res.json();
+                
+                console.log(`✅ ${type} recebido:`, data.length, 'itens');
+
+                let cats = [];
+                try {
+                    const catUrl = `${server.url}/player_api.php?username=${server.user}&password=${server.pass}&action=${catAction}`;
+                    const catRes = await fetch(catUrl);
+                    if (catRes.ok) cats = await catRes.json();
+                } catch (e) {
+                    console.warn('⚠️ Categorias não disponíveis:', e);
+                }
+
+                showProgress(type, 80, 'Finalizando...');
+
+                if (Array.isArray(data) && data.length > 0) {
+                    const items = data.map(item => {
+                        const cat = cats.find(c => c.category_id == item.category_id);
+                        const isSeries = type === 'series';
+                        const ext = item.container_extension || 'mp4';
+                        
+                        let streamUrl = '';
+                        let itemId = 0;
+                        
+                        if (type === 'live') {
+                            itemId = item.stream_id;
+                            streamUrl = `${server.url}/live/${server.user}/${server.pass}/${item.stream_id}.m3u8`;
+                        } else if (isSeries) {
+                            itemId = item.series_id;
+                            streamUrl = null;
+                        } else { // VOD / Movies
+                            itemId = item.stream_id;
+                            streamUrl = `${server.url}/movie/${server.user}/${server.pass}/${item.stream_id}.${ext}`;
+                        }
+
+                        return {
+                            id: itemId,
+                            name: item.name || 'Sem nome',
+                            category: cat ? cat.category_name : (type === 'live' ? 'CANAIS' : type.toUpperCase()),
+                            url: streamUrl,
+                            server: server,
+                            type: type,
+                            ext: ext,
+                            cover: item.cover || item.stream_icon || '',
+                            // Adicionar o ID do stream/movie/series para uso futuro
+                            stream_id: item.stream_id || item.series_id 
+                        };
+                    });
+                    
+                    currentData[type] = items;
+                    saveToCache(cacheKey, { items: items, categories: cats }); // Salvar no cache
+                    
+                    showProgress(type, 100, 'Concluído!');
+                    displayContent(type, currentData[type]);
+                    updateCategoryFilter(type, currentData[type], cats);
+                    
+                    console.log(`✅ ${currentData[type].length} ${type} carregados`);
+                    setTimeout(() => hideProgress(type), 500);
+                } else {
+                    throw new Error('Nenhum conteúdo encontrado');
+                }
+            } catch (err) {
+                console.error('❌ Erro:', err);
+                showError(type, err.message);
+                hideProgress(type);
+            } finally {
+                showLoading(type, false);
+            }
+        }
+
+        function displayContent(type, items) {
+            const list = document.getElementById(`${type}-list`);
+            list.innerHTML = '';
+            
+            if (items.length === 0) {
+                list.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-dim);">Nenhum conteúdo encontrado</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'content-item';
+                div.innerHTML = `
+                    <div class="content-icon">${getIcon(item.name, type)}</div>
+                    <div class="content-info">
+                        <div class="content-name">${item.name}</div>
+                        <div class="content-meta">${item.category}</div>
+                    </div>
+                `;
+                div.addEventListener('click', async () => {
+                    document.querySelectorAll('.content-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    
+                    // Se for série, carregar episódios primeiro
+                    if (item.type === 'series') {
+                        await loadSeriesEpisodes(item);
+                    } else {
+                        playItem(item);
+                    }
+                });
+                list.appendChild(div);
+            });
+        }
+
+        // ========== SERIES EPISODES (Com Cache) ==========
+        async function loadSeriesEpisodes(series) {
+            playerStatus.textContent = '📺 Carregando episódios...';
+            playerTitle.textContent = series.name;
+            
+            try {
+                // Tenta buscar do cache primeiro
+                const cacheKey = `episodes_${series.id}_${series.server.id}`;
+                let data = getFromCache(cacheKey, 12); // Cache de 12 horas para episódios
+
+                if (!data) {
+                    const url = `${series.server.url}/player_api.php?username=${series.server.user}&password=${series.server.pass}&action=get_series_info&series_id=${series.id}`;
+                    console.log('📺 Carregando episódios:', url);
+                    
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error('Erro ao carregar episódios');
+                    
+                    data = await res.json();
+                    saveToCache(cacheKey, data); // Salva no cache
+                }
+
+                console.log('✅ Dados da série:', data);
+                
+                if (!data.episodes || Object.keys(data.episodes).length === 0) {
+                    alert('❌ Nenhum episódio encontrado para esta série');
+                    return;
+                }
+                
+                // Mostrar modal com episódios
+                showEpisodesModal(series, data.episodes);
+                
+            } catch (err) {
+                console.error('❌ Erro ao carregar episódios:', err);
+                alert('❌ Erro ao carregar episódios: ' + err.message);
+                playerStatus.textContent = 'Pronto para reproduzir';
+            }
+        }
+
+        function showEpisodesModal(series, episodes) {
+            // Remove modal anterior se existir
+            closeEpisodesModal();
+            
+            // Cria a estrutura do modal
+            const modal = document.createElement('div');
+            modal.id = 'episodes-modal';
+            modal.className = 'modal show';
+
+            let modalHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">📺 ${series.name}</h3>
+                        <button class="modal-close" onclick="closeEpisodesModal()">×</button>
+                    </div>
+                    <div style="max-height: 60vh; overflow-y: auto; padding-right: 15px;">
+            `;
+            
+            // Organizar por temporadas
+            const seasons = Object.keys(episodes).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            seasons.forEach(season => {
+                const seasonEpisodes = episodes[season];
+                modalHTML += `
+                    <div style="margin-bottom: 24px;">
+                        <h4 style="color: var(--primary); margin-bottom: 12px; padding: 12px; background: var(--bg-hover); border-radius: 8px;">
+                            Temporada ${season} (${seasonEpisodes.length} episódios)
+                        </h4>
+                        <div style="display: grid; gap: 8px;">
+                `;
+                
+                seasonEpisodes.forEach(ep => {
+                    const ext = ep.container_extension || 'mp4';
+                    // URL de reprodução do episódio
+                    const episodeUrl = `${series.server.url}/series/${series.server.user}/${series.server.pass}/${ep.id}.${ext}`;
+                    
+                    // JSON stringify para passar o objeto do item para a função de play
+                    const episodeItem = JSON.stringify({
+                        url: episodeUrl,
+                        name: `${series.name} - T${season}E${ep.episode_num}${ep.title ? ': ' + ep.title : ''}`,
+                        type: 'series',
+                        server: series.server,
+                        id: ep.id,
+                        ext: ext // Adicionar ext para uso em alternativas
+                    }).replace(/"/g, '&quot;'); // Escapa aspas para uso em atributo HTML
+                    
+                    modalHTML += `
+                        <div class="content-item" style="margin: 0;" onclick='playItem(${episodeItem})'>
+                            <div class="content-icon">E${ep.episode_num}</div>
+                            <div class="content-info">
+                                <div class="content-name">Episódio ${ep.episode_num}${ep.title ? ': ' + ep.title : ''}</div>
+                                <div class="content-meta">${ep.info?.duration || 'N/A'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                modalHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            modalHTML += `
+                    </div>
+                </div>
+            `;
+            
+            modal.innerHTML = modalHTML;
+            document.body.appendChild(modal);
+        }
+
+        window.closeEpisodesModal = function() {
+            const modal = document.getElementById('episodes-modal');
+            if (modal) modal.remove();
+        };
+
+
+        function getIcon(name, type) {
+            if (type === 'series') return '📺';
+            if (type === 'movies') return '🎬';
+            const words = name.split(' ');
+            if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function updateCategoryFilter(type, items, categories) {
+            const filter = document.getElementById(`${type}-category-filter`);
+            
+            // Usar lista de categorias retornada pela API (se disponível) ou gerar a partir dos itens
+            const cats = categories && categories.length > 0
+                ? categories.map(c => c.category_name).sort()
+                : [...new Set(items.map(i => i.category))].sort();
+                
+            filter.innerHTML = '<option value="all">Todas Categorias</option>';
+            cats.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                filter.appendChild(opt);
+            });
+            // Reaplicar filtro atual se houver
+            filterContent(type);
+        }
+
+        function filterContent(type) {
+            const search = document.getElementById(`${type}-search`).value.toLowerCase();
+            const cat = document.getElementById(`${type}-category-filter`).value;
+            
+            let filtered = currentData[type];
+            if (cat !== 'all') filtered = filtered.filter(i => i.category === cat);
+            if (search) filtered = filtered.filter(i => i.name.toLowerCase().includes(search));
+            
+            displayContent(type, filtered);
+        }
+
+        // ========== PLAYER (Com lógica de alternativa aprimorada) ==========
+        function playItem(item) {
+            console.log('🎬 Reproduzindo:', item);
+            
+            if (!item.url) {
+                alert('❌ URL não disponível para este conteúdo');
+                return;
+            }
+            
+            // Fecha o modal de episódios se estiver aberto
+            closeEpisodesModal();
+            
+            currentItem = item;
+            playerTitle.textContent = item.name;
+            playerServer.textContent = item.server.name;
+            playerStatus.textContent = '🔄 Carregando...';
+            
+            prepareAlternatives(item);
+            loadStream(item.url);
+        }
+
+        function prepareAlternatives(item) {
+            alternatives = [];
+            
+            // Para Séries: item.id é o ID do episódio. item.stream_id é o ID da série.
+            // Para Filmes e Canais: item.id é o stream_id.
+            
+            const typeFilter = item.type === 'movies' ? 'vod' : item.type;
+            
+            const sameType = servers.filter(s => {
+                return s.type === typeFilter && s.id !== item.server.id;
+            });
+            
+            sameType.forEach(srv => {
+                let altUrl;
+                if (item.type === 'live') {
+                    altUrl = `${srv.url}/live/${srv.user}/${srv.pass}/${item.id}.m3u8`;
+                } else if (item.type === 'series') {
+                    // Item.id aqui é o ID do episódio (passado pelo modal)
+                    if (!item.id || !item.ext) return; 
+                    altUrl = `${srv.url}/series/${srv.user}/${srv.pass}/${item.id}.${item.ext}`;
+                } else {
+                    altUrl = `${srv.url}/movie/${srv.user}/${srv.pass}/${item.id}.${item.ext}`;
+                }
+                alternatives.push({ url: altUrl, name: srv.name });
+            });
+            
+            altServerBtn.style.display = alternatives.length > 0 ? 'block' : 'none';
+            console.log('📡 Servidores alternativos:', alternatives.length);
+        }
+
+        function loadStream(url) {
+            console.log('📡 Carregando stream:', url);
+            
+            if (hlsPlayer) {
+                hlsPlayer.destroy();
+                hlsPlayer = null;
+            }
+            
+            video.pause();
+            video.src = '';
+            video.load();
+            
+            const isM3U8 = url.includes('.m3u8');
+            
+            setTimeout(() => {
+                if (isM3U8 && Hls.isSupported()) {
+                    console.log('🔧 Usando HLS.js');
+                    hlsPlayer = new Hls({ 
+                        debug: false,
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        maxBufferLength: 30
+                    });
+                    
+                    hlsPlayer.loadSource(url);
+                    hlsPlayer.attachMedia(video);
+                    
+                    hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                        console.log('✅ Manifesto carregado');
+                        video.play()
+                            .then(() => playerStatus.textContent = '▶️ Reproduzindo')
+                            .catch(err => {
+                                console.log('⚠️ Autoplay bloqueado:', err);
+                                playerStatus.textContent = '⚠️ Clique ▶️ para reproduzir';
+                            });
+                    });
+                    
+                    hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
+                        console.error('❌ HLS Error:', data);
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error('❌ Erro de rede. Tentando outro servidor...');
+                                    playerStatus.textContent = '❌ Erro de rede - Tentando servidor alternativo...';
+                                    
+                                    // NOVO: Tenta servidor alternativo automaticamente
+                                    if (alternatives.length > 0) {
+                                        altServerBtn.click(); 
+                                    } else {
+                                        playerStatus.textContent = '❌ Erro de rede. Nenhum servidor alternativo disponível.';
+                                    }
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error('❌ Erro de mídia, tentando recuperar...');
+                                    hlsPlayer.recoverMediaError();
+                                    break;
+                                default:
+                                    console.error('❌ Erro fatal');
+                                    playerStatus.textContent = '❌ Erro - Tente outro servidor';
+                                    break;
+                            }
+                        }
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl') && isM3U8) {
+                    console.log('🍎 Usando HLS nativo (Safari)');
+                    video.src = url;
+                    video.play()
+                        .then(() => playerStatus.textContent = '▶️ Reproduzindo')
+                        .catch(() => playerStatus.textContent = '⚠️ Clique ▶️ para reproduzir');
+                } else {
+                    console.log('📹 Reprodução direta (MP4)');
+                    video.src = url;
+                    video.load();
+                    video.play()
+                        .then(() => playerStatus.textContent = '▶️ Reproduzindo')
+                        .catch(() => playerStatus.textContent = '⚠️ Clique ▶️ para reproduzir');
+                }
+            }, 300);
+        }
+
+        altServerBtn.addEventListener('click', () => {
+            if (alternatives.length === 0) {
+                alert('Sem servidores alternativos disponíveis');
+                return;
+            }
+            
+            const alt = alternatives.shift();
+            playerServer.textContent = alt.name;
+            playerStatus.textContent = '🔄 Mudando servidor...';
+            loadStream(alt.url);
+        });
+
+        video.addEventListener('playing', () => playerStatus.textContent = '▶️ Reproduzindo');
+        video.addEventListener('waiting', () => playerStatus.textContent = '⏳ Buffering...');
+        video.addEventListener('error', () => playerStatus.textContent = '❌ Erro - Tente outro servidor');
+
+        // ========== PROGRESS & LOADING (Mantido) ==========
+        function showProgress(type, percent, text) {
+            const container = document.getElementById(`${type}-progress`);
+            const fill = document.getElementById(`${type}-progress-fill`);
+            const textEl = document.getElementById(`${type}-progress-text`);
+            
+            if (container) container.style.display = 'block';
+            if (fill) {
+                fill.style.width = percent + '%';
+                fill.textContent = Math.round(percent) + '%';
+            }
+            if (textEl) textEl.textContent = text;
+        }
+
+        function hideProgress(type) {
+            setTimeout(() => {
+                const container = document.getElementById(`${type}-progress`);
+                if (container) container.style.display = 'none';
+            }, 1000);
+        }
+
+        function showLoading(type, show) {
+            const loading = document.getElementById(`${type}-loading`);
+            if (loading) loading.style.display = show ? 'block' : 'none';
+        }
+
+        function showError(type, message) {
+            const error = document.getElementById(`${type}-error`);
+            if (error) {
+                error.textContent = '❌ ' + message;
+                error.style.display = 'block';
+                setTimeout(() => error.style.display = 'none', 5000);
+            }
+        }
+    </script>
+</body>
+</html>
